@@ -31,7 +31,7 @@ export default function ProtectedRoute({ children }) {
           color: 'var(--text-secondary)',
           letterSpacing: '0.05em',
           fontWeight: '500'
-        }}>Loading Coach Space...</p>
+        }}>Loading PREP AI Portal...</p>
         
         {/* Inline keyframe injection for spin */}
         <style dangerouslySetInnerHTML={{__html: `

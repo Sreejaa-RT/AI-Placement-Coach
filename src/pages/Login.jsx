@@ -178,7 +178,7 @@ export default function Login() {
               {isSignUp ? 'Create Account' : 'Welcome Back'}
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '13.5px', marginBottom: '24px' }}>
-              {isSignUp ? 'Sign up to configure your placement dashboard' : 'Sign in to access your coach space'}
+              {isSignUp ? 'Sign up to configure your PREP AI dashboard' : 'Sign in to access your PREP AI portal'}
             </p>
 
             {/* Error & Success States */}

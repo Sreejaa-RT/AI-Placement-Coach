@@ -1,14 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getUserResumeAnalyses } from '../services/resumeService';
 
 export default function Dashboard() {
-  const { userProfile } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const navigate = useNavigate();
 
-  // Helper values with defaults
+  const [latestResumeAnalysis, setLatestResumeAnalysis] = useState(null);
+  const [resumeAnalysesCount, setResumeAnalysesCount] = useState(0);
+  const [loadingResumeStats, setLoadingResumeStats] = useState(true);
+
+  // Fetch real resume stats from Firestore
+  const fetchResumeStats = React.useCallback(async () => {
+    if (!currentUser?.uid) {
+      setLoadingResumeStats(false);
+      return;
+    }
+    setLoadingResumeStats(true);
+    try {
+      const records = await getUserResumeAnalyses(currentUser.uid);
+      setResumeAnalysesCount(records.length);
+      if (records.length > 0) {
+        setLatestResumeAnalysis(records[0]);
+      } else {
+        setLatestResumeAnalysis(null);
+      }
+    } catch (err) {
+      console.error('Error fetching resume stats for dashboard:', err);
+    } finally {
+      setLoadingResumeStats(false);
+    }
+  }, [currentUser?.uid]);
+
+  useEffect(() => {
+    fetchResumeStats();
+  }, [fetchResumeStats]);
+
+  // Metrics with defaults
   const readiness = userProfile?.readinessScore || 0;
-  const resumeScore = userProfile?.resumeStats?.score || 0;
+  const resumeScore = latestResumeAnalysis?.atsScore || userProfile?.resumeStats?.score || 0;
   const interviewScore = userProfile?.interviewStats?.score || 0;
   const aptitudeScore = userProfile?.aptitudeStats?.score || 0;
 
@@ -46,7 +77,7 @@ export default function Dashboard() {
     },
     {
       title: 'Aptitude & Technical',
-      desc: 'Solve DSA, OS, DBMS and Math placement MCQs.',
+      desc: 'Solve DSA, OS, DBMS and Math recruitment MCQs.',
       route: '/aptitude',
       badge: 'Skill Test',
       badgeClass: 'badge-amber',
@@ -73,34 +104,68 @@ export default function Dashboard() {
   ];
 
   const milestones = [
-    { text: 'Analyze and grade your first resume', completed: resumeScore > 0 },
+    { text: 'Analyze and grade your first resume', completed: resumeAnalysesCount > 0 },
     { text: 'Achieve a resume ATS score above 70%', completed: resumeScore >= 70 },
     { text: 'Complete a full Mock Interview simulation', completed: userProfile?.interviewStats?.completedCount > 0 },
     { text: 'Reach an average Mock Interview rating of 75%+', completed: interviewScore >= 75 },
     { text: 'Attempt at least one technical aptitude test', completed: userProfile?.aptitudeStats?.questionsSolved > 0 },
-    { text: 'Cross a combined Placement Readiness index of 80%', completed: readiness >= 80 }
+    { text: 'Cross a combined PREP AI Readiness index of 80%', completed: readiness >= 80 }
   ];
 
   return (
-    <div className="main-content animate-slide-up" style={{ padding: '20px 0' }}>
+    <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       
       {/* Welcome Banner */}
-      <div className="glass-panel" style={{
-        padding: '30px 40px',
-        borderRadius: '16px',
-        marginBottom: '32px',
-        background: 'linear-gradient(135deg, rgba(138, 112, 214, 0.04) 0%, rgba(167, 139, 250, 0.04) 100%)',
-        border: '1px solid rgba(138, 112, 214, 0.1)'
+      <div style={{
+        padding: '40px 40px 32px 40px',
+        background: 'linear-gradient(135deg, #005947 0%, #00473a 50%, #18A957 100%)',
+        width: '100%',
+        boxSizing: 'border-box'
       }}>
-        <h2 style={{ fontSize: '30px', fontWeight: '800', marginBottom: '8px', color: 'var(--text-primary)' }}>
-          Welcome back, <span className="text-gradient-cyan-blue">{userProfile?.displayName || 'Developer'}</span>!
+        {/* Pill Badge */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          padding: '6px 14px',
+          borderRadius: '9999px',
+          background: 'rgba(255, 255, 255, 0.12)',
+          color: '#2FBF71',
+          fontSize: '11px',
+          fontWeight: '700',
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+          marginBottom: '16px',
+          border: '1px solid rgba(255, 255, 255, 0.08)'
+        }}>
+          Prepare Smarter · Get Hired
+        </div>
+
+        <h2 style={{ fontSize: '30px', fontWeight: '800', marginBottom: '8px', color: '#FFFFFF', letterSpacing: '-0.5px' }}>
+          Welcome back, <span style={{ color: '#2FBF71', textShadow: '0 2px 4px rgba(0,0,0,0.15)' }}>{userProfile?.displayName || 'Developer'}</span>!
         </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '14.5px', fontWeight: '500' }}>
-          Your AI placement dashboards are configured and active. Let's make you recruitment-ready!
+        <p style={{ color: '#E6F4ED', fontSize: '14.5px', fontWeight: '500', margin: 0 }}>
+          Your PREP AI dashboards are configured and active. Let's make you recruitment-ready!
         </p>
+
+        {/* Motivational Line */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          color: '#B2D1C1',
+          fontSize: '12px',
+          fontWeight: '500',
+          marginTop: '12px'
+        }}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style={{ color: '#2FBF71' }}>
+            <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" />
+          </svg>
+          <span>Every prep counts. Every review counts. Let's close the gap.</span>
+        </div>
       </div>
 
-      <div className="grid-cols-12">
+      <div className="main-content" style={{ padding: '32px 40px 40px 40px', boxSizing: 'border-box', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+        <div className="grid-cols-12">
         {/* Left Column: Metrics & Actions (Span 8) */}
         <div className="col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
           
@@ -169,9 +234,11 @@ export default function Dashboard() {
             }}>
               <div style={{ padding: '16px', background: 'rgba(138, 112, 214, 0.02)', borderRadius: '8px', borderLeft: '3px solid var(--accent-cyan)', border: '1px solid rgba(138, 112, 214, 0.06)', borderLeftWidth: '3px' }}>
                 <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600', letterSpacing: '0.5px' }}>ATS RESUME SCORE</p>
-                <p style={{ fontSize: '26px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px' }}>{resumeScore}%</p>
-                <p style={{ fontSize: '11px', color: resumeScore > 0 ? 'var(--accent-emerald)' : 'var(--text-muted)', marginTop: '4px', fontWeight: '500' }}>
-                  {resumeScore > 0 ? '✓ Optimized structure' : '✕ Draft a resume'}
+                <p style={{ fontSize: '26px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px' }}>
+                  {resumeAnalysesCount > 0 ? `${resumeScore}%` : '-'}
+                </p>
+                <p style={{ fontSize: '11px', color: resumeAnalysesCount > 0 ? 'var(--accent-emerald)' : 'var(--text-muted)', marginTop: '4px', fontWeight: '500' }}>
+                  {resumeAnalysesCount > 0 ? `${resumeAnalysesCount} analysis run(s)` : 'No analysis yet'}
                 </p>
               </div>
               <div style={{ padding: '16px', background: 'rgba(167, 139, 250, 0.02)', borderRadius: '8px', borderLeft: '3px solid var(--accent-purple)', border: '1px solid rgba(167, 139, 250, 0.06)', borderLeftWidth: '3px' }}>
@@ -190,6 +257,80 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* Real Resume Metrics Summary & Top Missing Skills / Empty State */}
+          <div className="glass-panel" style={{ padding: '24px', background: '#FFFFFF' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>
+                RESUME ANALYZER HIGHLIGHTS
+              </h3>
+              {resumeAnalysesCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => navigate('/resume')}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--accent-cyan)',
+                    fontSize: '12.5px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  View All Analyses ({resumeAnalysesCount}) →
+                </button>
+              )}
+            </div>
+
+            {loadingResumeStats ? (
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Loading resume metrics...</p>
+            ) : !latestResumeAnalysis ? (
+              <div style={{ textAlign: 'center', padding: '20px 10px', color: 'var(--text-muted)' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" width="42" height="42" style={{ color: 'var(--accent-cyan)', opacity: 0.6, marginBottom: '10px' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                <h4 style={{ fontSize: '14.5px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                  No resume analysis yet.
+                </h4>
+                <p style={{ fontSize: '13px', marginBottom: '16px' }}>
+                  Analyze your resume to see your ATS score and personalized keyword gaps.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/resume')}
+                  className="btn btn-primary"
+                  style={{ padding: '8px 24px', fontSize: '13px' }}
+                >
+                  Analyze Resume
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+                <div>
+                  <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '0.5px' }}>LATEST AUDITED ROLE</p>
+                  <p style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', marginTop: '2px' }}>
+                    {latestResumeAnalysis.targetRole}
+                  </p>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    File: {latestResumeAnalysis.fileName} • ATS Score: <span style={{ color: 'var(--accent-purple)', fontWeight: '700' }}>{latestResumeAnalysis.atsScore}%</span>
+                  </p>
+                </div>
+
+                <div>
+                  <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '0.5px', marginBottom: '6px' }}>TOP MISSING SKILLS</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {latestResumeAnalysis.keywords?.missing?.length > 0 ? (
+                      latestResumeAnalysis.keywords.missing.slice(0, 4).map((kw, i) => (
+                        <span key={i} className="badge badge-rose" style={{ fontSize: '10.5px' }}>{kw}</span>
+                      ))
+                    ) : (
+                      <span style={{ fontSize: '12px', color: 'var(--accent-emerald)', fontWeight: '600' }}>✓ Essential keywords matched!</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column: Readiness Score Dial & Milestones (Span 4) */}
@@ -205,7 +346,7 @@ export default function Dashboard() {
             background: '#FFFFFF'
           }}>
             <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '1px', marginBottom: '24px' }}>
-              PLACEMENT READINESS INDEX
+              PREP AI READINESS INDEX
             </h3>
             
             <div style={{ position: 'relative', width: '150px', height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -252,7 +393,7 @@ export default function Dashboard() {
                 ? 'Begin your prep by loading a resume to analyze your layout score.' 
                 : readiness < 75 
                 ? 'Good progress! Engage in more mock interviews to raise your readiness score.'
-                : 'Excellent metrics! You are in the top tier of placement prep.'
+                : 'Excellent metrics! You are in the top tier of PREP AI prep.'
               }
             </p>
           </div>
@@ -295,6 +436,7 @@ export default function Dashboard() {
           </div>
 
         </div>
+      </div>
       </div>
       
       {/* Mobile view override rules */}

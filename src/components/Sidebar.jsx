@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar() {
-  const { currentUser, userProfile, logout } = useAuth();
+  const { userProfile, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -91,35 +91,43 @@ export default function Sidebar() {
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
-        marginBottom: '32px',
+        gap: '14px',
+        marginBottom: '20px',
         padding: '0 8px'
       }}>
         <div style={{
-          width: '38px',
-          height: '38px',
-          borderRadius: '10px',
+          width: '46px',
+          height: '46px',
+          borderRadius: '12px',
           background: 'var(--grad-cyan-blue)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 4px 10px rgba(138, 112, 214, 0.2)'
+          boxShadow: '0 4px 10px rgba(0, 89, 71, 0.2)'
         }}>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="#FFFFFF" width="22" height="22">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="#FFFFFF" width="26" height="26">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A5.905 5.905 0 018 3.443m4.26 6.704L12 3m0 17.904V12M12 3a49.093 49.093 0 018.232 4.41m0 0a50.58 50.58 0 012.658.813 5.906 5.906 0 01-11.758 3.125v-3.147m0 0L12 3" />
           </svg>
         </div>
         <div>
           <h1 style={{
-            fontSize: '18px',
-            fontWeight: '800',
-            letterSpacing: '0.5px'
+            fontSize: '20px',
+            fontWeight: '900',
+            letterSpacing: '0.5px',
+            lineHeight: '1.1'
           }}>
-            <span className="text-gradient-cyan-blue">AI</span> COACH
+            <span className="text-gradient-cyan-blue">PREP</span> AI
           </h1>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>PLACEMENT HUB</span>
+          <span style={{ fontSize: '8.5px', color: 'var(--text-muted)', fontWeight: '800', letterSpacing: '0.2px' }}>PREPARE SMARTER. GET HIRED.</span>
         </div>
       </div>
+
+      {/* Divider */}
+      <div style={{
+        height: '1px',
+        background: 'var(--border-glass)',
+        margin: '0 -8px 24px -8px'
+      }} />
 
       {/* User Info Quick view */}
       {userProfile && (

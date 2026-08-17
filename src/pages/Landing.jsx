@@ -52,7 +52,7 @@ export default function Landing() {
       }}>
         {/* Brand Badge */}
         <div className="badge badge-cyan" style={{ fontSize: '12px', padding: '6px 14px' }}>
-          ✦ THE SMART PLACEMENT PORTAL
+          ✦ PREP AI: PREPARE SMARTER. GET HIRED.
         </div>
 
         {/* Headline & Description */}
@@ -66,7 +66,7 @@ export default function Landing() {
             marginBottom: '20px'
           }}>
             Accelerate Your Interview & <br />
-            Placement Preparation with <span className="text-gradient-cyan-blue">AI Coach</span>
+            Career Preparation with <span className="text-gradient-cyan-blue">PREP AI</span>
           </h1>
           <p style={{
             fontSize: '17px',

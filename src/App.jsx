@@ -17,17 +17,28 @@ import Profile from './pages/Profile';
 // Layout for authorized panels (injects the sidebar alongside subpages)
 function MainLayout() {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-dark)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#005947' }}>
       <Sidebar />
       <main style={{
         flexGrow: 1,
-        padding: '20px 40px 20px 40px',
+        padding: '20px 24px 20px 20px',
         overflowY: 'auto',
         minWidth: 0,
         height: '100vh',
         boxSizing: 'border-box'
       }}>
-        <Outlet />
+        <div style={{
+          background: '#FFFFFF',
+          borderRadius: '16px',
+          minHeight: 'calc(100vh - 40px)',
+          boxSizing: 'border-box',
+          boxShadow: 'var(--shadow-glass)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}>
+          <Outlet />
+        </div>
       </main>
       
       {/* Mobile sidebar adjust */}

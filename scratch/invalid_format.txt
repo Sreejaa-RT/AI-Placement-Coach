@@ -1,0 +1,1 @@
+This is a plain text resume file which should be rejected by the backend parser.

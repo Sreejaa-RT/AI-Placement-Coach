@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import PageHero from '../components/PageHero';
 
 export default function Profile() {
   const { currentUser, userProfile, updateUserStats } = useAuth();
@@ -58,17 +59,17 @@ export default function Profile() {
   };
 
   return (
-    <div className="main-content animate-slide-up" style={{ padding: '20px 0' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} className="animate-slide-up">
       
-      {/* Header Info */}
-      <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '8px' }}>
-          <span className="text-gradient-cyan-blue">PROFILE & CONFIG</span> CONTROL
-        </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '14.5px', fontWeight: '500' }}>
-          Manage your personal placement parameters, configure Custom AI parameters, and check aggregate metrics.
-        </p>
-      </div>
+      {/* Page Hero Banner */}
+      <PageHero 
+        badge="YOUR PROFILE"
+        title="Profile & Settings"
+        subtitle="Manage your profile, preferences, and placement preparation details."
+        supportingLine="Keep your profile ready for every opportunity."
+      />
+
+      <div style={{ padding: '32px 40px 40px 40px', boxSizing: 'border-box', width: '100%' }}>
 
       <div className="grid-cols-12">
         {/* Left Column: Settings Form (Span 8) */}
@@ -138,9 +139,8 @@ export default function Profile() {
                   type="button" 
                   onClick={handleResetStats} 
                   disabled={saving} 
-                  className="btn btn-secondary" 
+                  className="btn btn-secondary btn-danger-hover" 
                   style={{ padding: '10px 24px', borderColor: 'rgba(229, 140, 163, 0.25)', color: 'var(--accent-pink)' }}
-                  className="btn-danger-hover btn"
                 >
                   Reset Prep Metrics
                 </button>
@@ -207,6 +207,7 @@ export default function Profile() {
         }
       `}} />
 
+      </div>
     </div>
   );
 }

@@ -2,41 +2,41 @@
 
 :root {
   /* Soft warm off-white / lavender backgrounds */
-  --bg-dark: #F8F7FC;          /* Main page background */
-  --bg-deep: #FFFFFF;          /* Main page containers */
-  --bg-glass: #FFFFFF;         /* White cards */
-  --bg-glass-active: #F1EDF9;  /* Soft active lavender-white tint */
-  --bg-glass-hover: #F9F8FD;   /* Soft card hover */
+  --bg-dark: #F2F8F5;          /* Soft Background */
+  --bg-deep: #FFFFFF;          /* Main Surface */
+  --bg-glass: #FFFFFF;         /* Main Surface */
+  --bg-glass-active: #E6F4ED;  /* Derived soft active green tint */
+  --bg-glass-hover: #FAFDFB;   /* Derived soft hover green tint */
   
   /* Extremely soft pastel border lines */
-  --border-glass: rgba(138, 112, 214, 0.09);
-  --border-glass-active: rgba(138, 112, 214, 0.22);
-  --border-glass-hover: rgba(138, 112, 214, 0.16);
+  --border-glass: #DCE8E2;     /* Border */
+  --border-glass-active: #B2D1C1; /* Derived active border tint */
+  --border-glass-hover: #C7DED3;  /* Derived hover border tint */
 
   /* Modern high-contrast dark gray text for soft comfort */
-  --text-primary: #1E293B;     /* Slate-800 */
-  --text-secondary: #475569;   /* Slate-600 */
-  --text-muted: #64748B;       /* Slate-500 */
+  --text-primary: #17201D;     /* Primary Text */
+  --text-secondary: #66736E;   /* Secondary Text */
+  --text-muted: #80908B;       /* Derived muted text */
   
   /* Cohesive pastel palettes */
-  --accent-cyan: #8A70D6;      /* Primary: Soft Lavender */
-  --accent-blue: #6366F1;      /* Indigo accent */
-  --accent-purple: #A78BFA;    /* Pastel purple */
+  --accent-cyan: #005947;      /* Primary Deep Emerald */
+  --accent-blue: #18A957;      /* Primary Green */
+  --accent-purple: #2FBF71;    /* Secondary Green */
   --accent-pink: #E58CA3;      /* Pastel rose error */
-  --accent-emerald: #60B6A7;   /* Muted teal success */
+  --accent-emerald: #18A957;   /* Primary Green */
   --accent-amber: #F29D6E;     /* Soft peach warning */
   
   /* Gradients */
-  --grad-cyan-blue: linear-gradient(135deg, #8A70D6 0%, #A78BFA 100%);
-  --grad-purple-pink: linear-gradient(135deg, #A78BFA 0%, #E58CA3 100%);
-  --grad-dark: linear-gradient(135deg, #F8F7FC 0%, #F5F3FC 100%);
-  --grad-glass: linear-gradient(135deg, #FFFFFF 0%, #FAF9FE 100%);
-  --grad-glow: linear-gradient(90deg, #8A70D6, #A78BFA, #E58CA3, #8A70D6);
+  --grad-cyan-blue: linear-gradient(135deg, #005947 0%, #18A957 100%);
+  --grad-purple-pink: linear-gradient(135deg, #18A957 0%, #2FBF71 100%);
+  --grad-dark: linear-gradient(135deg, #F2F8F5 0%, #E6F0EA 100%);
+  --grad-glass: linear-gradient(135deg, #FFFFFF 0%, #F6FAF8 100%);
+  --grad-glow: linear-gradient(90deg, #005947, #18A957, #2FBF71, #005947);
   
   /* Soft, blurry shadows replacing neon glows */
-  --shadow-glass: 0 10px 30px -5px rgba(138, 112, 214, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.01);
-  --shadow-neon-cyan: 0 4px 14px rgba(138, 112, 214, 0.25);
-  --shadow-neon-purple: 0 4px 14px rgba(167, 139, 250, 0.25);
+  --shadow-glass: 0 10px 30px -5px rgba(0, 89, 71, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.01);
+  --shadow-neon-cyan: 0 4px 14px rgba(24, 169, 87, 0.2);
+  --shadow-neon-purple: 0 4px 14px rgba(47, 191, 113, 0.2);
   --backdrop-blur: none;
   
   /* Transitions */
@@ -68,9 +68,9 @@ body {
   min-height: 100vh;
   background: var(--bg-dark);
   background-image: 
-    radial-gradient(circle at 10% 20%, rgba(138, 112, 214, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(96, 182, 167, 0.04) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(229, 140, 163, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 10% 20%, rgba(0, 89, 71, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(24, 169, 87, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(47, 191, 113, 0.02) 0%, transparent 50%),
     var(--grad-dark);
   background-attachment: fixed;
   overflow-x: hidden;
@@ -83,10 +83,10 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(138, 112, 214, 0.02);
+  background: rgba(0, 89, 71, 0.02);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(138, 112, 214, 0.12);
+  background: rgba(0, 89, 71, 0.12);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -113,7 +113,7 @@ body {
 .glass-card:hover {
   transform: translateY(-3px);
   border-color: var(--border-glass-hover);
-  box-shadow: 0 16px 36px rgba(138, 112, 214, 0.08);
+  box-shadow: 0 16px 36px rgba(0, 89, 71, 0.08);
 }
 
 .glass-card.active {
@@ -126,7 +126,7 @@ body {
   width: 100%;
   padding: 12px 16px;
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--border-glass);
   border-radius: 8px;
   color: var(--text-primary);
   font-family: inherit;
@@ -137,8 +137,8 @@ body {
 
 .glass-input:focus {
   background: #FFFFFF;
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 0 3px rgba(138, 112, 214, 0.15);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(24, 169, 87, 0.15);
 }
 
 .glass-input::placeholder {
@@ -171,15 +171,15 @@ body {
 }
 
 .btn-primary {
-  background: var(--grad-cyan-blue);
+  background: var(--accent-blue);
   color: #FFFFFF;
   box-shadow: var(--shadow-neon-cyan);
 }
 
 .btn-primary:hover {
   transform: translateY(-1.5px);
-  background: var(--accent-cyan);
-  box-shadow: 0 6px 20px rgba(138, 112, 214, 0.35);
+  background: #158f4a; /* derived hover shade */
+  box-shadow: 0 6px 20px rgba(24, 169, 87, 0.35);
 }
 
 .btn-primary:active {
@@ -188,14 +188,14 @@ body {
 
 .btn-secondary {
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--border-glass);
   color: var(--text-secondary);
 }
 
 .btn-secondary:hover {
   background: var(--bg-glass-hover);
-  border-color: var(--accent-cyan);
-  color: var(--accent-cyan);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
   transform: translateY(-1.5px);
 }
 
@@ -207,7 +207,8 @@ body {
 
 .btn-purple:hover {
   transform: translateY(-1.5px);
-  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.35);
+  background: #25a45f; /* derived hover shade of secondary green #2FBF71 */
+  box-shadow: 0 6px 20px rgba(47, 191, 113, 0.35);
 }
 
 .btn-text {
@@ -216,8 +217,8 @@ body {
 }
 
 .btn-text:hover {
-  color: var(--accent-cyan);
-  background: rgba(138, 112, 214, 0.04);
+  color: var(--accent-blue);
+  background: rgba(24, 169, 87, 0.04);
 }
 
 /* Typography Helpers */

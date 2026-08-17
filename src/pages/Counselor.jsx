@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import PageHero from '../components/PageHero';
 
 export default function Counselor() {
   const { userProfile, updateUserStats } = useAuth();
@@ -78,17 +79,17 @@ export default function Counselor() {
   };
 
   return (
-    <div className="main-content animate-slide-up" style={{ padding: '20px 0', height: 'calc(100vh - 40px)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100vh' }} className="animate-slide-up">
       
-      {/* Header Info */}
-      <div style={{ marginBottom: '20px', flexShrink: 0 }}>
-        <h2 style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '8px' }}>
-          <span className="text-gradient-cyan-blue">AI PLACEMENT</span> COUNSELOR
-        </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '14.5px', fontWeight: '500' }}>
-          Consult your 24/7 AI-driven placement advisor. Ask roadmaps, interview preparation tips, and negotiation guidelines.
-        </p>
-      </div>
+      {/* Page Hero Banner */}
+      <PageHero 
+        badge="24/7 ADVISOR"
+        title="AI Career Counselor"
+        subtitle="Get personalized guidance for career paths, skills, placements, and interview preparation."
+        supportingLine="Your career path starts with the right next step."
+      />
+
+      <div style={{ padding: '32px 40px 40px 40px', boxSizing: 'border-box', width: '100%', flexGrow: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '24px', flexGrow: 1, minHeight: 0 }}>
         
@@ -277,6 +278,7 @@ export default function Counselor() {
         }
       `}} />
 
+      </div>
     </div>
   );
 }
