@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import PageHero from '../components/PageHero';
 import { extractTextFromFile, validateResumeFile } from '../utils/textExtractor';
 import { saveResumeAnalysis, getUserResumeAnalyses, deleteResumeAnalysis } from '../services/resumeService';
+import { API_ENDPOINTS } from '../config/api';
 
 export default function Resume() {
   const { currentUser, userProfile, updateUserStats } = useAuth();
@@ -132,7 +133,7 @@ export default function Resume() {
         formData.append("custom_job_description", customJd);
       }
 
-      const response = await fetch('/api/v1/resume/audit', {
+      const response = await fetch(API_ENDPOINTS.resumeAudit, {
         method: 'POST',
         body: formData
         // Content-Type is set automatically by the browser with multipart boundaries

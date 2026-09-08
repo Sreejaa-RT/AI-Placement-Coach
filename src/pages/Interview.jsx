@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import PageHero from '../components/PageHero';
 import { getUserResumeAnalyses } from '../services/resumeService';
+import { API_ENDPOINTS } from '../config/api';
 
 export default function Interview() {
   const { currentUser, userProfile, updateUserStats } = useAuth();
@@ -117,7 +118,7 @@ export default function Interview() {
 
       // 2. Fetch assessment performance if available
       try {
-        const response = await fetch(`/api/v1/assessment/performance?user_id=${currentUser.uid}`);
+        const response = await fetch(API_ENDPOINTS.assessmentPerformance(currentUser.uid));
         if (response.ok) {
           const perfData = await response.json();
           if (perfData && Array.isArray(perfData.weakest_topics)) {
@@ -131,7 +132,7 @@ export default function Interview() {
 
     // 3. Query the backend generator endpoint
     try {
-      const response = await fetch('/api/generate-interview-questions', {
+      const response = await fetch(API_ENDPOINTS.generateInterviewQuestions, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -191,7 +192,7 @@ export default function Interview() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('/api/evaluate-interview-responses', {
+      const response = await fetch(API_ENDPOINTS.evaluateInterviewResponses, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

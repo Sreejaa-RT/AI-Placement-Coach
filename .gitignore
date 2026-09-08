@@ -31,3 +31,6 @@ dist-ssr
 backend/ml/resume_analyzer/dataset/train_cleaned.csv
 **/__pycache__/
 *.pyc
+venv/
+.venv/
+backend/ml/resume_analyzer/venv/

@@ -6,22 +6,38 @@ from fastapi import FastAPI, File, UploadFile, Form, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-# Dynamic path resolution to import from assessment sibling directory
+# Dynamic path resolution to import from assessment sibling directory and current directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
 ml_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
-if ml_dir not in sys.path:
-    sys.path.insert(0, ml_dir)
+repo_root = os.path.abspath(os.path.join(ml_dir, ".."))
 
-from .service import initialize_ml_service, execute_resume_audit
-from .resume_parser import validate_file_metadata, extract_text_from_stream
-from .job_descriptions import get_job_description
+for p in [current_dir, ml_dir, repo_root]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
-from assessment.src.service import (
-    initialize_assessment_service,
-    get_questions,
-    check_answer,
-    calculate_performance
-)
+try:
+    from .service import initialize_ml_service, execute_resume_audit
+    from .resume_parser import validate_file_metadata, extract_text_from_stream
+    from .job_descriptions import get_job_description
+except ImportError:
+    from service import initialize_ml_service, execute_resume_audit
+    from resume_parser import validate_file_metadata, extract_text_from_stream
+    from job_descriptions import get_job_description
+
+try:
+    from assessment.src.service import (
+        initialize_assessment_service,
+        get_questions,
+        check_answer,
+        calculate_performance
+    )
+except ImportError:
+    from backend.ml.assessment.src.service import (
+        initialize_assessment_service,
+        get_questions,
+        check_answer,
+        calculate_performance
+    )
 
 app = FastAPI(
     title="AI Placement Coach - ML Resume Audit & Assessment API",
@@ -72,6 +88,8 @@ def startup_event():
         # Fail loud so the server doesn't run in a broken state
         os._exit(1)
 
+@app.get("/")
+@app.get("/health")
 @app.get("/api/v1/resume/health")
 def health_check():
     """
@@ -80,7 +98,7 @@ def health_check():
     return {
         "status": "healthy",
         "service": "AI Placement Coach ML Audit Engine",
-        "timestamp": os.getenv("PORT", "8000")
+        "port": os.getenv("PORT", "8000")
     }
 
 @app.post("/api/v1/resume/audit", response_model=ResumeAuditResponse)

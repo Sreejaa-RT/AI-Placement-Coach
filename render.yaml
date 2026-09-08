@@ -1,0 +1,21 @@
+services:
+  # 1. Python FastAPI Backend (ML Resume Analyzer & Assessment Engine)
+  - type: web
+    name: ai-placement-ml
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.ml.resume_analyzer.src.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # 2. Node.js Express Backend (Gemini AI Question Generation & Evaluation)
+  - type: web
+    name: ai-placement-node
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
