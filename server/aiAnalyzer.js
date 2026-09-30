@@ -387,24 +387,24 @@ export async function evaluateInterviewResponsesWithAI({ role, questions, answer
   Provide a detailed evaluation. Return ONLY a valid, strict JSON object matching the schema below.
   Do not include markdown blocks or wrapper elements.
   
-  JSON Schema:
+  JSON Schema example:
   {
-    "overall_score": <overall average score out of 100>,
-    "communication_score": <communication quality score out of 100>,
-    "technical_score": <technical accuracy score out of 100>,
-    "relevance_score": <answer relevance score out of 100>,
+    "overall_score": 85,
+    "communication_score": 80,
+    "technical_score": 90,
+    "relevance_score": 85,
     "results": [
       {
-        "question_id": "<must match question id, e.g. q1>",
-        "score": <score out of 100>,
-        "strengths": [<array of positive highlights in this response>],
-        "missing_points": [<array of critical points, definitions, or parameters they missed>],
-        "feedback": "<constructive feedback on their answer>",
-        "model_answer": "<The comprehensive model answer outlining the best practice response>"
+        "question_id": "q1",
+        "score": 85,
+        "strengths": ["Clear explanation of core concepts"],
+        "missing_points": ["Could provide more technical detail"],
+        "feedback": "Good response covering key points.",
+        "model_answer": "A comprehensive answer detailing key technical concepts."
       }
     ],
-    "overall_feedback": "<summary of overall strengths and weaknesses in their performance>",
-    "recommended_topics": [<array of topics or categories they should study to improve based on their gaps>]
+    "overall_feedback": "Strong performance across technical questions.",
+    "recommended_topics": ["System Design"]
   }`;
 
   try {
