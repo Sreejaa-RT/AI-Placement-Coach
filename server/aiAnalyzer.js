@@ -5,15 +5,23 @@ import { GoogleGenAI } from '@google/genai';
 
 // Helper to resolve GEMINI_API_KEY from process.env or .env file explicitly
 function resolveGeminiApiKey() {
-  // Check process.env first
-  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim()) {
-    return process.env.GEMINI_API_KEY.trim();
-  }
-  if (process.env.GOOGLE_API_KEY && process.env.GOOGLE_API_KEY.trim()) {
-    return process.env.GOOGLE_API_KEY.trim();
+  const envCandidates = [
+    process.env.GEMINI_API_KEY,
+    process.env.GOOGLE_API_KEY,
+    process.env.VITE_GEMINI_API_KEY,
+    process.env.API_KEY
+  ];
+
+  for (const candidate of envCandidates) {
+    if (candidate && typeof candidate === 'string') {
+      const trimmed = candidate.trim();
+      if (trimmed && !trimmed.includes('your_gemini_api_key_here')) {
+        return trimmed;
+      }
+    }
   }
 
-  // Fallback: Read directly from .env at project root
+  // Fallback: Read directly from .env at project root if environment variable is not populated
   const rootEnvPath = path.resolve(process.cwd(), '.env');
   if (fs.existsSync(rootEnvPath)) {
     try {
@@ -26,7 +34,7 @@ function resolveGeminiApiKey() {
           if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
             val = val.slice(1, -1).trim();
           }
-          if (val) return val;
+          if (val && !val.includes('your_gemini_api_key_here')) return val;
         }
       }
     } catch (e) {
@@ -55,7 +63,7 @@ function extractJSON(str) {
   return null;
 }
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
+dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: false });
 
 /**
  * Analyzes resume text against target role using real AI (Google Gemini API)
