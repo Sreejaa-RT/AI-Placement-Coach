@@ -129,7 +129,7 @@ JSON Schema required:
     try {
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -141,7 +141,7 @@ JSON Schema required:
       console.warn('[AI Analyzer] GenAI SDK failed, attempting direct Gemini REST API fallback:', sdkError.message);
       
       // Fallback: Direct Gemini REST API fetch
-      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
       const restRes = await fetch(restUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -290,7 +290,7 @@ export async function generateInterviewQuestionsWithAI({ role, difficulty, resum
     try {
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -300,7 +300,7 @@ export async function generateInterviewQuestionsWithAI({ role, difficulty, resum
       rawText = response.text || '';
     } catch (sdkError) {
       console.warn('[AI Interview Helper] SDK failed, attempting direct REST fallback:', sdkError.message);
-      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
       const restRes = await fetch(restUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -418,7 +418,7 @@ export async function evaluateInterviewResponsesWithAI({ role, questions, answer
     try {
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -428,7 +428,7 @@ export async function evaluateInterviewResponsesWithAI({ role, questions, answer
       rawText = response.text || '';
     } catch (sdkError) {
       console.warn('[AI Interview Evaluation] SDK failed, attempting direct REST fallback:', sdkError.message);
-      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
       const restRes = await fetch(restUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
