@@ -4,8 +4,24 @@
  * and falls back to empty strings for local Vite proxy development.
  */
 
-export const ML_API_BASE_URL = (import.meta.env.VITE_ML_API_URL || '').replace(/\/+$/, '');
-export const NODE_API_BASE_URL = (import.meta.env.VITE_NODE_API_URL || import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const getMlApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_ML_API_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '') {
+    return envUrl.trim();
+  }
+  return 'https://ai-placement-ml.onrender.com';
+};
+
+const getNodeApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_NODE_API_URL || import.meta.env.VITE_API_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '') {
+    return envUrl.trim();
+  }
+  return '';
+};
+
+export const ML_API_BASE_URL = getMlApiBaseUrl().replace(/\/+$/, '');
+export const NODE_API_BASE_URL = getNodeApiBaseUrl().replace(/\/+$/, '');
 
 export const API_ENDPOINTS = {
   // Python FastAPI ML Endpoints

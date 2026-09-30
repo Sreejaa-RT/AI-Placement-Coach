@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import PageHero from '../components/PageHero';
 import { extractTextFromFile, validateResumeFile } from '../utils/textExtractor';
 import { saveResumeAnalysis, getUserResumeAnalyses, deleteResumeAnalysis } from '../services/resumeService';
-import { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS, ML_API_BASE_URL } from '../config/api';
 
 export default function Resume() {
   const { currentUser, userProfile, updateUserStats } = useAuth();
@@ -123,7 +123,10 @@ export default function Resume() {
 
     setErrorMsg('');
     setStatusState('analyzing');
-    setStatusMessage('Analyzing resume against target role metrics...');
+    setStatusMessage('Analyzing resume against target role metrics (connecting to ML engine)...');
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout for Render cold starts / large files
 
     try {
       const formData = new FormData();
@@ -135,9 +138,11 @@ export default function Resume() {
 
       const response = await fetch(API_ENDPOINTS.resumeAudit, {
         method: 'POST',
-        body: formData
-        // Content-Type is set automatically by the browser with multipart boundaries
+        body: formData,
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errJson = await response.json().catch(() => ({}));
@@ -203,9 +208,16 @@ export default function Resume() {
       // Reload history list
       loadHistory();
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error('Resume audit error:', err);
       setStatusState('idle');
-      setErrorMsg(err.message || 'Unable to connect to the AI analysis service. Please try again.');
+      if (err.name === 'AbortError') {
+        setErrorMsg('The ML analysis request timed out. The server on Render may be waking up from sleep. Please try again in a few seconds.');
+      } else if (err.message && err.message.includes('Failed to fetch')) {
+        setErrorMsg(`Unable to connect to the deployed ML server at ${ML_API_BASE_URL}. Please check your internet connection or verify the service status.`);
+      } else {
+        setErrorMsg(err.message || 'Unable to connect to the AI analysis service. Please try again.');
+      }
     }
   };
 
