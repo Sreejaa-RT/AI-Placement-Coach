@@ -63,6 +63,68 @@ function extractJSON(str) {
   return null;
 }
 
+// Helper to call Google Gemini API with fallback models (gemini-2.5-flash -> gemini-1.5-flash -> gemini-2.0-flash)
+async function generateContentWithGemini({ apiKey, prompt, temperature = 0.2 }) {
+  const modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+  
+  // 1. Try SDK with each model candidate
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    for (const model of modelsToTry) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            responseMimeType: 'application/json',
+            temperature
+          }
+        });
+        const text = response.text;
+        if (text && text.trim()) {
+          return text.trim();
+        }
+      } catch (err) {
+        console.warn(`[Gemini SDK] Model ${model} failed:`, err.message);
+      }
+    }
+  } catch (sdkInitErr) {
+    console.warn('[Gemini SDK] SDK initialization failed:', sdkInitErr.message);
+  }
+
+  // 2. Direct REST API fallback for each model candidate
+  for (const model of modelsToTry) {
+    try {
+      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const restRes = await fetch(restUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature
+          }
+        })
+      });
+      if (restRes.ok) {
+        const restData = await restRes.json();
+        const text = restData?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text && text.trim()) {
+          return text.trim();
+        }
+      } else {
+        const errText = await restRes.text().catch(() => '');
+        console.warn(`[Gemini REST Fallback] Model ${model} failed with status ${restRes.status}:`, errText);
+      }
+    } catch (restErr) {
+      console.warn(`[Gemini REST Fallback] Model ${model} fetch failed:`, restErr.message);
+    }
+  }
+
+  throw new Error('Empty or invalid response received from Gemini API across all model fallbacks.');
+}
+
 dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: false });
 
 /**
@@ -130,51 +192,8 @@ JSON Schema required:
   "priorityImprovements": [<array of top 3 urgent changes to make immediately>]
 }`;
 
-  let rawText = '';
-
   try {
-    // Primary: Try Google Gen AI SDK
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.2
-        }
-      });
-      rawText = response.text || '';
-    } catch (sdkError) {
-      console.warn('[AI Analyzer] GenAI SDK failed, attempting direct Gemini REST API fallback:', sdkError.message);
-      
-      // Fallback: Direct Gemini REST API fetch
-      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-      const restRes = await fetch(restUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            temperature: 0.2
-          }
-        })
-      });
-
-      if (!restRes.ok) {
-        const errBody = await restRes.json().catch(() => ({}));
-        const msg = errBody?.error?.message || `HTTP ${restRes.status} from Gemini API`;
-        return {
-          success: false,
-          statusCode: restRes.status,
-          error: `Gemini AI API Error: ${msg}`
-        };
-      }
-
-      const restData = await restRes.json();
-      rawText = restData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    }
+    const rawText = await generateContentWithGemini({ apiKey, prompt, temperature: 0.2 });
 
     if (!rawText || !rawText.trim()) {
       return {
@@ -293,41 +312,8 @@ export async function generateInterviewQuestionsWithAI({ role, difficulty, resum
     ]
   }`;
 
-  let rawText = '';
   try {
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.7
-        }
-      });
-      rawText = response.text || '';
-    } catch (sdkError) {
-      console.warn('[AI Interview Helper] SDK failed, attempting direct REST fallback:', sdkError.message);
-      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-      const restRes = await fetch(restUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            temperature: 0.7
-          }
-        })
-      });
-      if (restRes.ok) {
-        const restData = await restRes.json();
-        rawText = restData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      } else {
-        const errText = await restRes.text().catch(() => '');
-        console.error(`[AI Interview Helper] REST API fallback failed with status ${restRes.status}:`, errText);
-      }
-    }
+    const rawText = await generateContentWithGemini({ apiKey, prompt, temperature: 0.7 });
 
     if (!rawText || !rawText.trim()) {
       throw new Error('Empty or invalid response received from Gemini API.');
@@ -421,41 +407,8 @@ export async function evaluateInterviewResponsesWithAI({ role, questions, answer
     "recommended_topics": [<array of topics or categories they should study to improve based on their gaps>]
   }`;
 
-  let rawText = '';
   try {
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.2
-        }
-      });
-      rawText = response.text || '';
-    } catch (sdkError) {
-      console.warn('[AI Interview Evaluation] SDK failed, attempting direct REST fallback:', sdkError.message);
-      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-      const restRes = await fetch(restUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            temperature: 0.2
-          }
-        })
-      });
-      if (restRes.ok) {
-        const restData = await restRes.json();
-        rawText = restData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      } else {
-        const errText = await restRes.text().catch(() => '');
-        console.error(`[AI Interview Evaluation] REST API fallback failed with status ${restRes.status}:`, errText);
-      }
-    }
+    const rawText = await generateContentWithGemini({ apiKey, prompt, temperature: 0.2 });
 
     if (!rawText || !rawText.trim()) {
       throw new Error('Empty or invalid response received from Gemini API.');
