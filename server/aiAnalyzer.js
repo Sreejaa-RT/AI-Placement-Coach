@@ -67,25 +67,26 @@ function extractJSON(str) {
 async function generateContentWithGemini({ apiKey, prompt, temperature = 0.2 }) {
   const modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
   
-  // 1. Try SDK with each model candidate
+  // 1. Try SDK with each model candidate (JSON mode first, then standard text mode)
   try {
     const ai = new GoogleGenAI({ apiKey });
     for (const model of modelsToTry) {
-      try {
-        const response = await ai.models.generateContent({
-          model,
-          contents: prompt,
-          config: {
-            responseMimeType: 'application/json',
-            temperature
+      for (const mimeType of ['application/json', undefined]) {
+        try {
+          const config = { temperature };
+          if (mimeType) config.responseMimeType = mimeType;
+          const response = await ai.models.generateContent({
+            model,
+            contents: prompt,
+            config
+          });
+          const text = response.text;
+          if (text && text.trim()) {
+            return text.trim();
           }
-        });
-        const text = response.text;
-        if (text && text.trim()) {
-          return text.trim();
+        } catch (err) {
+          console.warn(`[Gemini SDK] Model ${model} (${mimeType || 'text'}) failed:`, err.message);
         }
-      } catch (err) {
-        console.warn(`[Gemini SDK] Model ${model} failed:`, err.message);
       }
     }
   } catch (sdkInitErr) {
@@ -94,31 +95,33 @@ async function generateContentWithGemini({ apiKey, prompt, temperature = 0.2 }) 
 
   // 2. Direct REST API fallback for each model candidate
   for (const model of modelsToTry) {
-    try {
-      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      const restRes = await fetch(restUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            temperature
+    for (const mimeType of ['application/json', undefined]) {
+      try {
+        const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const generationConfig = { temperature };
+        if (mimeType) generationConfig.responseMimeType = mimeType;
+
+        const restRes = await fetch(restUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig
+          })
+        });
+        if (restRes.ok) {
+          const restData = await restRes.json();
+          const text = restData?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text && text.trim()) {
+            return text.trim();
           }
-        })
-      });
-      if (restRes.ok) {
-        const restData = await restRes.json();
-        const text = restData?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text && text.trim()) {
-          return text.trim();
+        } else {
+          const errText = await restRes.text().catch(() => '');
+          console.warn(`[Gemini REST Fallback] Model ${model} (${mimeType || 'text'}) failed with status ${restRes.status}:`, errText);
         }
-      } else {
-        const errText = await restRes.text().catch(() => '');
-        console.warn(`[Gemini REST Fallback] Model ${model} failed with status ${restRes.status}:`, errText);
+      } catch (restErr) {
+        console.warn(`[Gemini REST Fallback] Model ${model} fetch failed:`, restErr.message);
       }
-    } catch (restErr) {
-      console.warn(`[Gemini REST Fallback] Model ${model} fetch failed:`, restErr.message);
     }
   }
 
